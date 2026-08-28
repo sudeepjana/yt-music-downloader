@@ -67,6 +67,14 @@ so **any** http(s) host you pass will be fetched — only pass URLs you trust.
   For the full picture (including the `bgutil-ytdlp-pot-provider` plugin) see the
   [yt-dlp PO Token guide](https://github.com/yt-dlp/yt-dlp/wiki/PO-Token-Guide).
 
+## Disclaimer
+
+This tool is intended for personal use with content you own or are otherwise
+permitted to download. Downloading videos may violate
+[YouTube's Terms of Service](https://www.youtube.com/t/terms), and downloading
+copyrighted material without permission may be unlawful in your jurisdiction.
+You are solely responsible for how you use it.
+
 ## Development
 
 ```bash
