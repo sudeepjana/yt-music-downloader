@@ -1,0 +1,48 @@
+[project]
+name = "ytmd"
+version = "0.1.0"
+description = "Download audio from YouTube links"
+requires-python = ">=3.10"
+dependencies = [
+    # yt-dlp is intentionally left with a lower bound only: it ships frequent
+    # releases that track YouTube's changes, and staying current is required
+    # for downloads to keep working. Pin it in a lockfile if you need
+    # reproducible installs.
+    "yt-dlp>=2025.1.1",
+    "imageio-ffmpeg>=0.5.1,<1.0",
+    "mutagen>=1.47,<2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+ytmd = "ytmd.cli:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["yt_dlp.*", "imageio_ffmpeg.*"]
+ignore_missing_imports = true
