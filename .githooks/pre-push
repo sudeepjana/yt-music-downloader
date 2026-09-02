@@ -1,0 +1,23 @@
+#!/bin/sh
+# Refuse direct pushes to a protected branch. Use a branch + PR instead.
+# Bypass in a genuine emergency with: git push --no-verify
+#
+# Tracked hook. Enable it once per clone with:
+#   git config core.hooksPath .githooks
+#
+# git passes, on stdin, one line per ref being pushed:
+#   <local_ref> <local_sha> <remote_ref> <remote_sha>
+protected='main master'
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+	for b in $protected; do
+		if [ "$remote_ref" = "refs/heads/$b" ]; then
+			echo "pre-push: refusing to push directly to '$b'." >&2
+			echo "  Create a branch and open a PR instead." >&2
+			echo "  (Emergency override: git push --no-verify)" >&2
+			exit 1
+		fi
+	done
+done
+
+exit 0
