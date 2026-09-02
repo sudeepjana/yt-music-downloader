@@ -18,6 +18,14 @@ CI (`.github/workflows/ci.yml`) runs exactly `ruff check .`, `mypy`, `pytest -q`
 
 The CLI entry point is `ytmd` (declared in `pyproject.toml` `[project.scripts]` → `ytmd.cli:main`); it only exists after `pip install -e`.
 
+Enable the tracked git hooks once per clone:
+
+```bash
+git config core.hooksPath .githooks   # activates .githooks/pre-push
+```
+
+`.githooks/pre-push` refuses direct pushes to `main`/`master` — all changes land via a branch + PR (emergency override: `git push --no-verify`).
+
 ## Architecture
 
 This is a thin, security-conscious wrapper around **yt-dlp**. The actual downloading, audio extraction, metadata tagging, and thumbnail embedding are all performed by yt-dlp postprocessors driven by ffmpeg — this code mostly just constructs a yt-dlp options dict and runs it. Understanding the port therefore means understanding what each option does in yt-dlp, not custom logic here.
