@@ -10,8 +10,10 @@ dependencies = [
     # yt-dlp is intentionally left with a lower bound only: it ships frequent
     # releases that track YouTube's changes, and staying current is required
     # for downloads to keep working. Pin it in a lockfile if you need
-    # reproducible installs.
-    "yt-dlp>=2025.1.1",
+    # reproducible installs. The floor is kept recent so an already-installed
+    # older yt-dlp is upgraded rather than left behind (this floor includes
+    # the external-JS-runtime / EJS extraction behavior).
+    "yt-dlp>=2026.1.1",
     "imageio-ffmpeg>=0.5.1,<1.0",
     "mutagen>=1.47,<2.0",
 ]
