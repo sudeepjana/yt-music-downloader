@@ -21,6 +21,12 @@ On the first run, imageio-ffmpeg makes sure a bundled ffmpeg binary is
 available; no separate install is required on the common platforms (macOS,
 Windows, Linux x86_64).
 
+**Recommended: a JavaScript runtime.** yt-dlp now runs YouTube's player
+JavaScript in an external JS runtime to unlock all formats; without one it
+prints a warning and may fetch lower-quality streams or fail. Installing
+[Deno](https://deno.com) (the runtime yt-dlp auto-detects) is the simplest fix —
+see [Troubleshooting](#troubleshooting) below.
+
 ## Usage
 
 ```bash
@@ -64,6 +70,23 @@ The URL must be an `http(s)` link. yt-dlp supports many sites beyond YouTube,
 so **any** http(s) host you pass will be fetched — only pass URLs you trust.
 
 ## Troubleshooting
+
+- **Warning: "No supported JavaScript runtime could be found"** — YouTube
+  extraction now relies on running its player JavaScript in an external JS
+  runtime (yt-dlp's EJS feature). Without one, yt-dlp falls back to a degraded
+  path and some formats may be missing. Install **Deno**, which yt-dlp
+  auto-detects (no flags needed):
+
+  ```bash
+  curl -fsSL https://deno.land/install.sh | sh
+  ```
+
+  Open a new terminal so `deno` is on your `PATH` (verify with `deno --version`),
+  then re-run `ytmd`. On macOS, prefer this official installer over
+  `brew install deno` — the Homebrew formula builds from source and needs a full
+  Xcode install. Deno is recommended because it sandboxes the untrusted player
+  JS; other runtimes (e.g. Node) work only if pointed to explicitly. See the
+  [yt-dlp EJS guide](https://github.com/yt-dlp/yt-dlp/wiki/EJS) for details.
 
 - **Downloads failing with token/403 errors** — YouTube increasingly requires a
   PO Token to serve audio streams. First update yt-dlp:
