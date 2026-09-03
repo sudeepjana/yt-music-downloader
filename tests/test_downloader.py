@@ -43,6 +43,19 @@ def test_download_audio_rejects_bad_url_before_network():
         download_audio("file:///etc/passwd", fmt="mp3")
 
 
+def test_download_audio_rejects_bad_url_in_list_before_network():
+    # One bad URL anywhere in the batch aborts before any network/ffmpeg work.
+    with pytest.raises(ValueError, match="Invalid URL"):
+        download_audio(
+            ["https://youtube.com/watch?v=ok", "file:///etc/passwd"], fmt="mp3"
+        )
+
+
+def test_download_audio_rejects_empty_url_list():
+    with pytest.raises(ValueError, match="No URLs provided"):
+        download_audio([], fmt="mp3")
+
+
 def test_output_template_is_under_output_dir():
     tmpl = build_output_template("/tmp/music")
     assert tmpl.startswith(os.path.abspath("/tmp/music") + os.sep) or tmpl.startswith("/tmp/music/")

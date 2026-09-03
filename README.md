@@ -27,6 +27,19 @@ Windows, Linux x86_64).
 ytmd "https://www.youtube.com/watch?v=..."                    # -> downloads/<title>.mp3
 ytmd "https://www.youtube.com/watch?v=..." --format opus
 ytmd "https://www.youtube.com/playlist?list=..." -o ~/Music   # -> ~/Music/<playlist>/<title>.mp3
+ytmd "https://youtu.be/AAA" "https://youtu.be/BBB"            # several URLs in one run
+ytmd -a urls.txt                                              # read URLs from a file
+```
+
+Pass several URLs at once, and/or read them from a file with `-a/--batch-file`
+(one URL per line; blank lines and `#` comments are ignored). URLs on the
+command line and in the batch file are combined into a single run:
+
+```
+# urls.txt
+https://www.youtube.com/watch?v=AAA
+# this line is ignored
+https://www.youtube.com/playlist?list=BBB
 ```
 
 On success the tool prints how many files were saved and the absolute output
@@ -36,6 +49,7 @@ directory.
 
 | Flag | Description |
 | --- | --- |
+| `-a, --batch-file FILE` | Read URLs from `FILE`, one per line (blank lines and `#` comments ignored); combined with any URLs on the command line. |
 | `-f, --format {mp3,opus,m4a,flac}` | Output format (default `mp3`). |
 | `-o, --output-dir DIR` | Where to save audio (default `./downloads`). |
 | `-q, --quality 0-9` | Quality for **lossy** formats: `0` = best (default), `9` = worst. Ignored for `flac` (lossless — always full quality). |

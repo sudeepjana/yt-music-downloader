@@ -7,11 +7,28 @@ from . import __version__
 from .downloader import SUPPORTED_FORMATS, download_audio
 
 
+def read_batch_file(path: str) -> list[str]:
+    """Read URLs from a batch file: one per line, ignoring blank lines and
+    lines beginning with ``#`` (comments), matching yt-dlp's ``-a`` convention.
+    """
+    with open(path, encoding="utf-8") as f:
+        lines = f.read().splitlines()
+    return [s for line in lines if (s := line.strip()) and not s.startswith("#")]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="ytmd", description="Download audio from a YouTube video or playlist."
     )
-    parser.add_argument("url", help="Video or playlist URL (YouTube or any yt-dlp-supported site)")
+    parser.add_argument(
+        "url", nargs="*", metavar="URL",
+        help="One or more video/playlist URLs (YouTube or any yt-dlp-supported site)",
+    )
+    parser.add_argument(
+        "-a", "--batch-file", metavar="FILE",
+        help="Read URLs from FILE, one per line (blank lines and #-comments are "
+             "ignored); combined with any URLs given on the command line.",
+    )
     parser.add_argument(
         "-f", "--format", choices=SUPPORTED_FORMATS, default="mp3",
         help="Output audio format (default: mp3)",
@@ -32,9 +49,18 @@ def main() -> None:
     parser.add_argument("--version", action="version", version=f"ytmd {__version__}")
     args = parser.parse_args()
 
+    urls = list(args.url)
+    if args.batch_file:
+        try:
+            urls += read_batch_file(args.batch_file)
+        except OSError as e:
+            parser.error(f"could not read batch file '{args.batch_file}': {e}")
+    if not urls:
+        parser.error("no URLs given: pass at least one URL or --batch-file FILE")
+
     try:
         result = download_audio(
-            args.url,
+            urls,
             fmt=args.format,
             output_dir=args.output_dir,
             quality=args.quality,
@@ -47,7 +73,7 @@ def main() -> None:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(2)
     except DownloadError as e:
-        print(f"Error: could not download from '{args.url}': {e}", file=sys.stderr)
+        print(f"Error: download failed: {e}", file=sys.stderr)
         sys.exit(1)
     except OSError as e:
         print(f"Error: could not write to '{args.output_dir}': {e}", file=sys.stderr)

@@ -32,8 +32,8 @@ This is a thin, security-conscious wrapper around **yt-dlp**. The actual downloa
 
 Two source files do everything:
 
-- `src/ytmd/downloader.py` — the library. `download_audio()` validates input, builds options via `build_ydl_opts()`, runs `yt_dlp.YoutubeDL(...).download([url])`, and returns a `DownloadResult(count, output_dir)`.
-- `src/ytmd/cli.py` — argparse front end that calls `download_audio()` and maps outcomes to exit codes (see below).
+- `src/ytmd/downloader.py` — the library. `download_audio()` accepts one URL or a sequence of URLs, validates input, builds options via `build_ydl_opts()`, runs `yt_dlp.YoutubeDL(...).download(url_list)` (a single session for the whole batch), and returns a `DownloadResult(count, output_dir)`. Every URL is validated before any network work, so one bad URL aborts the batch.
+- `src/ytmd/cli.py` — argparse front end. Accepts multiple positional URLs plus `-a/--batch-file` (parsed by `read_batch_file()`: one URL per line, `#`-comments and blanks ignored), combines them, calls `download_audio()`, and maps outcomes to exit codes (see below).
 
 Key design decisions that span files / aren't obvious from one function:
 
@@ -47,7 +47,7 @@ Key design decisions that span files / aren't obvious from one function:
 
 ### CLI exit-code contract
 
-`cli.main()` deliberately maps exception types to exit codes — keep this stable: `ValueError` → 2 (bad format/URL), `DownloadError` → 1, `OSError` → 1 (write failure), `KeyboardInterrupt` → 130, any other exception → 1 with a friendly message, and a successful run that downloaded nothing → 1.
+`cli.main()` deliberately maps exception types to exit codes — keep this stable: `ValueError` → 2 (bad format/URL), `DownloadError` → 1, `OSError` → 1 (write failure), `KeyboardInterrupt` → 130, any other exception → 1 with a friendly message, and a successful run that downloaded nothing → 1. Input errors caught before the download — no URLs given, or an unreadable `--batch-file` — go through `parser.error()`, which also exits 2 (consistent with bad format/URL).
 
 ## Constraints
 
