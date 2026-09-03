@@ -53,4 +53,4 @@ Key design decisions that span files / aren't obvious from one function:
 
 - **Supported formats** are fixed in `SUPPORTED_FORMATS = ("mp3", "opus", "m4a", "flac")`; `LOSSLESS_FORMATS = ("flac",)` (quality is ignored, with a printed note, for lossless).
 - `yt-dlp` is intentionally pinned with a **lower bound only** — it ships frequent releases tracking YouTube changes and must stay current. Don't add an upper cap.
-- Downloads commonly fail with 403/PO-Token errors; the supported remedies are updating yt-dlp and `--cookies-from-browser`. See the README Troubleshooting section before debugging download failures as code bugs.
+- Downloads commonly fail (or warn about missing formats) for reasons outside this code: 403/PO-Token errors, or a missing external JS runtime (yt-dlp's EJS — it auto-detects Deno). The supported remedies are updating yt-dlp, installing a JS runtime (Deno), and `--cookies-from-browser`. See the README Troubleshooting section before debugging download failures as code bugs.
