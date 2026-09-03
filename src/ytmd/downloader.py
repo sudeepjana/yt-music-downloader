@@ -1,4 +1,5 @@
 import os
+from collections.abc import Sequence
 from dataclasses import dataclass
 from urllib.parse import urlparse
 
@@ -80,17 +81,26 @@ def build_ydl_opts(
 
 
 def download_audio(
-    url: str,
+    urls: str | Sequence[str],
     fmt: str = "mp3",
     output_dir: str = "downloads",
     quality: int | None = None,
     cookies_from_browser: str | None = None,
 ) -> DownloadResult:
+    # A single URL string is accepted for convenience; everything downstream
+    # works on a list so one YoutubeDL session can fetch several URLs at once.
+    url_list = [urls] if isinstance(urls, str) else list(urls)
+
     if fmt not in SUPPORTED_FORMATS:
         raise ValueError(
             f"Unsupported format '{fmt}'. Choose from {', '.join(SUPPORTED_FORMATS)}."
         )
-    validate_url(url)
+    if not url_list:
+        raise ValueError("No URLs provided.")
+    # Validate every URL up front, before any network/ffmpeg work: one bad URL
+    # in the batch aborts the whole run rather than being fetched.
+    for url in url_list:
+        validate_url(url)
 
     if quality is not None and fmt in LOSSLESS_FORMATS:
         print(f"Note: --quality is ignored for lossless format '{fmt}'.")
@@ -107,6 +117,6 @@ def download_audio(
 
     opts = build_ydl_opts(fmt, output_dir, quality, cookies_from_browser, [_hook])
     with yt_dlp.YoutubeDL(opts) as ydl:
-        ydl.download([url])
+        ydl.download(url_list)
 
     return DownloadResult(count=len(finished), output_dir=output_dir)
